@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="styles.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="script.js"></script>
+    <title>Library</title>
+
+</head>
+
+<body>
+   
+
+   <div class="add-button">
+        <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#booksModal" data-bs-whatever="@getbootstrap">+</button>
+   </div>
+
+   <div class="modal fade" id="booksModal" tabindex="-1" aria-labelledby="bookForm" aria-hidden="true">
+    <div class="modal-dialog  modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="bookForm">Add a book</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="addBookForm">
+            <div class="mb-3">
+              <label for="title" class="col-form-label">Title:</label>
+              <input type="text" class="form-control" id="title" required>
+            </div>
+            <div class="mb-3">
+              <label for="author" class="col-form-label">Author:</label>
+              <input type="text" class="form-control" id="author" required>
+            </div>
+            <div class="mb-3">
+                <label for="pages" class="col-form-label">Pages:</label>
+                <input type="number" class="form-control" min="0" id="pages" onchange="currentPageUpdateSlider(this.value)" required>
+            </div>
+            <div class="mb-3">
+                <label for="pagesRead" class="col-form-label">Progress:</label>
+                <input type="range" class="form-range" id="pagesRead" min="0" max="100" value="0" onchange="currentPageUpdate(this.value)">
+                <div style="font-size: small;">
+                    <div id="current" style="display: inline;">0</div>
+                    <div style="display: inline;">pages read</div>
+                </div>
+             
+            </div>
+            <div class="mb-3">
+                <label for="read" class="col-form-label" style="margin-bottom: 1%;">Status:</label>
+                <div>
+                    <input class="form-check-input" type="checkbox" value="" id="read" checked>
+                    <label class="form-check-label" class="form-text" for="read">Read</label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="exit">Close</button>
+                <button type="submit" class="btn btn-primary" onclick="addBook()">Add Book</button>
+              </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="main">
+        <div class="cardItem">
+            <div class="content">
+                <div class="info">
+                    <div class="bookTitle">Harry Potter</div>
+                    <div class="bookAuthor">Jk Rowling</div>
+                </div>
+                <div class="photo"><button class="addPhoto">Upload cover</button></div>
+                <div class="progress-wrapper">
+                    <div class="status">.
+                        <div class="progress-filled">.</div>
+                        <span class="amount">50%</span>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+        <div class="cardItem">
+            <div class="content">
+                <div class="info">
+                    <div class="bookTitle">Harry Potter</div>
+                    <div class="bookAuthor">Jk Rowling</div>
+                </div>
+                <div class="photo"><button class="addPhoto">Upload cover</button></div>
+                <div class="progress-wrapper">
+                    <div class="status">.
+                        <div class="progress-filled">.</div>
+                        <span class="amount">50%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>    
+</div>
+  <script>
+    document.getElementById("addBookForm").addEventListener("submit",(e)=>{
+        e.preventDefault();
+    })
+</script>
+   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
+   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script> 
+</body>
+</html>
