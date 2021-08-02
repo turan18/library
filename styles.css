@@ -43,6 +43,9 @@ html,body{
     margin-top: 1.5%;
     margin-right: 2%;
 }
+.bookTitle{
+    text-align: center;
+}
 .bookAuthor{
     font-size: small;
     text-align: center;
@@ -61,6 +64,7 @@ html,body{
 
 }
 .status{
+    color: transparent;
     width: 100%;
     height: 100%;
     background-color: rgb(255, 255, 255);
@@ -71,16 +75,20 @@ html,body{
     position: absolute;
     top: 0;   
     left: 0;
-    width: 50%;
+    width: 0%;
     background-color: rgb(102, 207, 102);
     border-radius: 5px;
-    transition: all 0.8s;
+    transition: width 3s;
     z-index: 0;
 }
 .amount{
+    color: black;
     position: absolute;
     font-weight: bolder;
     z-index: 1;
     top: 0;
     right: 0;
+}
+[data-item="0"]> .content > .progress-wrapper > .status > .progress-filled, [data-item="1"] .content > .progress-wrapper > .status > .progress-filled{
+    width: 50%;
 }
