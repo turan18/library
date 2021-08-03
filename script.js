@@ -1,5 +1,5 @@
-let bookCollection = [];
-let uniqueID = 2;
+let bookCollection = [new Book("Harry Potter","JK Rowling",120,60,false,0)];
+let uniqueID = 1;
 function Book(title,author,pages,progress,read,uid){
     this.title = title;
     this.author = author;
@@ -7,6 +7,16 @@ function Book(title,author,pages,progress,read,uid){
     this.progress = progress;
     this.read = read;
     this.uid = uid;
+}
+
+function formRead(obj){
+    let slider = ((obj.parentNode.parentNode).previousElementSibling).querySelector("#pagesRead")
+    
+    let pages = ((slider.parentNode).previousElementSibling).querySelector("#pages");
+    console.log(pages);
+    if(obj.checked){
+        slider.value = pages.value;
+    }
 }
 function addBook(){
     let duplicate = false;
@@ -37,8 +47,38 @@ function addBook(){
 }
 
 function showBooks(title,author,pages,pagesRead,read,uid){
+
+    
+
+
+
     let cardItem = document.createElement("div");
     cardItem.setAttribute("class","cardItem");
+
+
+    let changeDiv = document.createElement("div");
+    changeDiv.setAttribute("class","change");
+    let changeButton = document.createElement("button");
+    changeButton.setAttribute("class","edit-page");
+    changeButton.setAttribute("onclick","makeEditable(this)")
+    let changeImg = new Image()
+    changeImg.src = "images/pen-edit.png"
+    changeButton.appendChild(changeImg)
+    changeDiv.appendChild(changeButton)
+   
+
+
+    let removeDiv = document.createElement("div");
+    removeDiv.setAttribute("class","remove");
+    let removeButton = document.createElement("button");
+    removeButton.setAttribute("class","delete-book");
+    removeButton.setAttribute("onclick","removeBook(this)")
+    let removeImg = new Image()
+    removeImg.src = "images/delete-icon.png"
+    removeButton.appendChild(removeImg);
+    removeDiv.appendChild(removeButton);
+    
+
 
     let content = document.createElement("div");
     content.setAttribute("class","content");
@@ -80,6 +120,45 @@ function showBooks(title,author,pages,pagesRead,read,uid){
     let calc_progress = Math.floor((parseInt(pagesRead)/parseInt(pages)) * 100) 
     amount.innerHTML = `0%`;
 
+    let edits = document.createElement("div");
+    edits.setAttribute("class","edits");
+
+
+    let pages_read_text = document.createElement("p");
+    pages_read_text.setAttribute("class","pages-read-text");
+
+    pages_read_text.innerHTML = `<span class="readPages" onblur="updatePagesRead(this)">${pagesRead}</span>/<span class="totalPages" onblur="updateTotalPages(this)">${pages}</span> pages.`//ADD THIS TO EDITS
+
+
+
+
+    let main_toggle = document.createElement("div");
+    main_toggle.setAttribute("class","main-toggle");
+
+
+    let toggle_label = document.createElement("div");
+    toggle_label.setAttribute("class","toggle-label");
+    toggle_label.innerText = "Read";
+
+    let div_form = document.createElement("div");
+    div_form.classList.add("form-check","form-switch");
+
+
+    let input_switch = document.createElement("input");
+    input_switch.classList.add("form-check-input","finish")
+    input_switch.setAttribute("type","checkbox");
+    input_switch.setAttribute("id","flexSwitchCheckDefault");
+    input_switch.setAttribute("onclick","markAsRead(this)")
+    if(read){
+        input_switch.checked = true;
+    }
+
+    div_form.appendChild(input_switch);
+    main_toggle.append(toggle_label,div_form);
+
+    edits.append(pages_read_text,main_toggle);
+
+
 
     photo.appendChild(addPhoto);
     info.appendChild(bookTitle);
@@ -87,8 +166,10 @@ function showBooks(title,author,pages,pagesRead,read,uid){
     status.append(progress_filled,amount)
     progress_wrapper.appendChild(status)
 
-    content.append(info,photo,progress_wrapper);
-    cardItem.appendChild(content);
+    content.append(info,photo,progress_wrapper,edits);
+    cardItem.append(changeDiv,removeDiv,content);
+    // console.log('THIS ISISIISISIS');
+    // console.log(cardItem);
     cardItem.animate([
         // keyframes
         { opacity: '0' },
@@ -120,13 +201,11 @@ function updateProgressBar(value,id){
     let progress_bar = cardItem.querySelector(".progress-filled");
 
   
-
-    let frequency = Math.floor(3000/value);
-    
-    progress_bar.style.width = `${value}%`
-
-    
     current = parseInt((amt.innerHTML).replace("%",""));
+    eq = Math.abs(current-value)
+    let frequency = Math.floor(3000/eq);
+    
+    progress_bar.style.width = `${value}%`;
     
     var an = setInterval(function(){
       if(current == value){
@@ -138,6 +217,7 @@ function updateProgressBar(value,id){
             amt.innerHTML = `${current}%`
         }
         else if(current>value){
+            console.log("Do this");
             current--;
             amt.innerHTML = `${current}%`
         }
@@ -152,5 +232,146 @@ function currentPageUpdate(pages){
     document.getElementById("current").innerHTML = pages
 }
 
+function makeEditable(currentNode){
+    let cardItem = currentNode.parentNode.parentNode;
+    let p = cardItem.querySelector(".pages-read-text");
+    let r = cardItem.querySelector(".readPages");
+    let t = cardItem.querySelector(".totalPages");
+    
+    r.setAttribute("contenteditable","true");
+    t.setAttribute("contenteditable","true");
+    r.focus();
+
+    r.addEventListener('keypress', (evt) => {
+        if (evt.which === 13) {
+            evt.preventDefault();
+        }
+    });
+    t.addEventListener('keypress', (evt) => {
+        if (evt.which === 13) {
+            evt.preventDefault();
+        }
+    });
+}
+
+function removeBook(currentNode){
+    let cardItem = currentNode.parentNode.parentNode;
+    let uid = cardItem.getAttribute("data-item");
+    for(book of bookCollection){
+        if(book["uid"] == uid){
+            bookCollection.pop(book);
+        }
+    }
+    while (cardItem.firstChild) {
+        cardItem.removeChild(cardItem.firstChild);
+    }
+    cardItem.remove();
+
+}
+
+function updatePagesRead(obj){
+    let total,current;
+    let cardItem = obj.parentNode.parentNode.parentNode.parentNode;
+    let cardId = cardItem.getAttribute("data-item");
+    let read = cardItem.querySelector(".finish");
+
+    obj.setAttribute("contenteditable","false");
+    
+    let newPagesRead = obj.textContent;
+
+    let bookObj;
+    for(book of bookCollection){
+        if(book["uid"] == cardId){
+            current = book.progress;
+            total = book.pages;
+            bookObj = book;
+        }
+    }
+    if(parseInt(newPagesRead) > parseInt(total)){
+        alert("Read pages must be less than total.")
+        obj.textContent = current;
+    }
+    else{
+        let newProgress = Math.floor((newPagesRead/total) * 100);
+        bookObj.progress = newPagesRead;
+        updateProgressBar(newProgress,cardId)
+
+        if(newProgress < 100){
+            bookObj.read = false;
+            read.checked = false;
+        }
+        if(parseInt(newProgress) == 100){
+            bookObj.read = true;
+            read.checked = true;
+        }
+        
+    }
+    
+
+}
+function updateTotalPages(obj){
+    let progress;
+    let cardItem = obj.parentNode.parentNode.parentNode.parentNode;
+    let cardId = cardItem.getAttribute("data-item");
+    let read = cardItem.querySelector(".finish");
+
+    obj.setAttribute("contenteditable","false");
+    
+    let newTotal = obj.textContent;
+    let bookObj;
+    for(book of bookCollection){
+        if(book["uid"] == cardId){
+            current = book.pages;
+            progress = book.progress;
+            bookObj = book;
+        }
+    }
+    if(parseInt(newTotal) < parseInt(progress)){
+        alert("Total pages cannot be less than progress.")
+    
+        obj.textContent = current;
+    }
+    else{
+        let newProgress = Math.floor((progress/newTotal) * 100);
+        updateProgressBar(newProgress,cardId);
+        bookObj.pages = newTotal;
+        if(newProgress < 100){
+            bookObj.read = false;
+            read.checked = false;
+        }
+        if(parseInt(newProgress) == 100){
+            bookObj.read = true;
+            read.checked = true;
+        }
+       
+    }
+    
+}
+
+function markAsRead(obj){
+    let cardItem = obj.parentNode.parentNode.parentNode.parentNode.parentNode;
+    
+    let read = obj.checked;
+    let uid = cardItem.getAttribute("data-item");
+    let bookObj;
+    for(book of bookCollection){
+        if(book["uid"] == uid){
+            bookObj = book;
+        }
+    }
+    if(read){
+        bookObj.read = true;
+        bookObj.progress = book.pages;
+        cardItem.querySelector(".readPages").textContent = `${bookObj.pages}`;
+        updateProgressBar(100,uid)
+    }
+    else{
+        cardItem.querySelector(".readPages").textContent = `${bookObj.progress}`;
+        cardItem.querySelector(".readPages").textContent = `${bookObj.pages}`;
+
+    }
 
 
+
+   
+}

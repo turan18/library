@@ -51,7 +51,7 @@
             <div class="mb-3">
                 <label for="read" class="col-form-label" style="margin-bottom: 1%;">Status:</label>
                 <div>
-                    <input class="form-check-input" type="checkbox" value="" id="read" checked>
+                    <input class="form-check-input" type="checkbox" value="" id="read" onchange="formRead(this)">
                     <label class="form-check-label" class="form-text" for="read">Read</label>
                 </div>
             </div>
@@ -66,6 +66,17 @@
   </div>
   <div class="main">
         <div class="cardItem" data-item="0">
+            <div class="change">
+                <button class="edit-page" onclick="makeEditable(this)">
+                    <img src="images/pen-edit.png">
+                </button>
+            </div>
+            <div class="remove">
+                <button class="delete-book" onclick="removeBook(this)">
+                    <img src="images/delete-icon.png">
+                </button>
+            </div>
+            
             <div class="content">
                 <div class="info">
                     <div class="bookTitle">Harry Potter</div>
@@ -79,21 +90,18 @@
                     </div>
                 </div>
                 
-            </div>
-        </div>
-        <div class="cardItem" data-item="1">
-            <div class="content">
-                <div class="info">
-                    <div class="bookTitle">Harry Potter</div>
-                    <div class="bookAuthor">Jk Rowling</div>
-                </div>
-                <div class="photo"><button class="addPhoto">Upload cover</button></div>
-                <div class="progress-wrapper">
-                    <div class="status">.
-                        <div class="progress-filled">.</div>
-                        <span class="amount">50%</span>
+                <div class="edits">
+                    <p class="pages-read-text"><span class="readPages" onblur="updatePagesRead(this)">60</span>/<span class="totalPages" onblur="updateTotalPages(this)">120</span> pages.</p>
+        
+                    <div class="main-toggle">
+                        <p class="toggle-label">Read</p>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input finish" type="checkbox" id="flexSwitchCheckDefault" onclick="markAsRead(this)">
+                        </div>
                     </div>
                 </div>
+
+
             </div>
         </div> 
     </div>
