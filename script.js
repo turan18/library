@@ -7,6 +7,7 @@ function Book(title,author,pages,progress,read,uid,imgsrc){
     this.progress = progress;
     this.read = read;
     this.uid = uid;
+    this.imgsrc = imgsrc;
 }
 
 function formRead(obj){
@@ -26,7 +27,6 @@ function addBook(){
     let pr = document.getElementById("pagesRead").value;
     let r = document.getElementById("read").checked;
     let id = uniqueID;
-
     for(book of bookCollection){
         if(book["title"] == t){
             duplicate = true;
@@ -46,7 +46,7 @@ function addBook(){
     console.log(bookCollection)
 }
 
-function showBooks(title,author,pages,pagesRead,read,uid){
+function showBooks(title,author,pages,pagesRead,read,uid,img){
 
     let cardItem = document.createElement("div");
     cardItem.setAttribute("class","cardItem");
@@ -99,6 +99,9 @@ function showBooks(title,author,pages,pagesRead,read,uid){
     addPhoto.setAttribute("class","importImage");
     addPhoto.setAttribute("onchange","uploadPhoto(this)")
     addPhoto.setAttribute("accept","image/png, image/gif, image/jpeg")
+
+    let cover = document.createElement("img");
+    cover.src = img;
 
     let progress_wrapper = document.createElement("div");
     progress_wrapper.setAttribute("class","progress-wrapper");
@@ -156,8 +159,13 @@ function showBooks(title,author,pages,pagesRead,read,uid){
     edits.append(pages_read_text,main_toggle);
 
 
-
-    photo.appendChild(addPhoto);
+    if(img != undefined){
+        photo.appendChild(cover);
+    }
+    else{
+        photo.appendChild(addPhoto);
+    }
+    
     info.appendChild(bookTitle);
     info.appendChild(bookAuthor);
     status.append(progress_filled,amount)
