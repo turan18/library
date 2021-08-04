@@ -1,6 +1,6 @@
 let bookCollection = [new Book("Harry Potter","JK Rowling",120,60,false,0)];
 let uniqueID = 1;
-function Book(title,author,pages,progress,read,uid){
+function Book(title,author,pages,progress,read,uid,imgsrc){
     this.title = title;
     this.author = author;
     this.pages = pages;
@@ -33,7 +33,7 @@ function addBook(){
         }
     }
     if(!duplicate && (t && a && p && pr)){
-        bookCollection.push(new Book(t,a,p,pr,r,id));
+        bookCollection.push(new Book(t,a,p,pr,r,id,""));
         showBooks(t,a,p,pr,r,uniqueID);
         document.getElementById("exit").click() 
         document.getElementById("addBookForm").reset();
@@ -47,10 +47,6 @@ function addBook(){
 }
 
 function showBooks(title,author,pages,pagesRead,read,uid){
-
-    
-
-
 
     let cardItem = document.createElement("div");
     cardItem.setAttribute("class","cardItem");
@@ -98,11 +94,12 @@ function showBooks(title,author,pages,pagesRead,read,uid){
     let photo = document.createElement("div");
     photo.setAttribute("class","photo");
 
-    let addPhoto = document.createElement("button");
-    addPhoto.setAttribute("class","addPhoto");
-    addPhoto.innerHTML = "Upload cover"
+    let addPhoto = document.createElement("input");
+    addPhoto.setAttribute("type","file");
+    addPhoto.setAttribute("class","importImage");
+    addPhoto.setAttribute("onchange","uploadPhoto(this)")
+    addPhoto.setAttribute("accept","image/png, image/gif, image/jpeg")
 
-    
     let progress_wrapper = document.createElement("div");
     progress_wrapper.setAttribute("class","progress-wrapper");
 
@@ -190,6 +187,37 @@ function showBooks(title,author,pages,pagesRead,read,uid){
     document.querySelector(".main").appendChild(cardItem);
     setTimeout(function (){updateProgressBar(calc_progress,uid)},400);
 
+}
+
+function uploadPhoto(obj){
+    let parentToAdd = obj.parentNode;
+    let card = (parentToAdd.parentNode.parentNode).getAttribute("data-item");
+    let bookObj;
+    for(book of bookCollection){
+        if(book["uid"] == card){
+            bookObj = book;
+        }
+    }
+    var preview = document.createElement("img");
+    
+    var file    = document.querySelector('input[type=file]').files[0];
+    var reader  = new FileReader();
+  
+    reader.onloadend = function () {
+        preview.src = reader.result;
+        bookObj.imgsrc = preview.src
+      
+    }
+  
+    if (file) {
+      reader.readAsDataURL(file);
+      
+    } else {
+      preview.src = "";
+    }
+
+    parentToAdd.appendChild(preview)
+    parentToAdd.removeChild(parentToAdd.childNodes[0])
 }
 
 function updateProgressBar(value,id){
