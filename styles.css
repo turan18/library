@@ -96,7 +96,7 @@ html,body{
     right: 0;
 }
 [data-item="0"]> .content > .progress-wrapper > .status > .progress-filled{
-    width: 50%;
+    width: 0%;
 }
 
 

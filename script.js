@@ -1,5 +1,15 @@
-let bookCollection = [new Book("Harry Potter","JK Rowling",120,60,false,0)];
-let uniqueID = 1;
+window.onload = function(){
+    if(JSON.parse(localStorage.getItem("books")) != null){
+        let bookList = JSON.parse(localStorage.getItem("books"));
+        
+        bookList.forEach((book) => {
+            showBooks(book.title,book.author,book.pages,book.progress,book.read,book.uid,book.imgsrc);
+        });
+    }
+}
+
+
+
 function Book(title,author,pages,progress,read,uid,imgsrc){
     this.title = title;
     this.author = author;
@@ -9,16 +19,6 @@ function Book(title,author,pages,progress,read,uid,imgsrc){
     this.uid = uid;
     this.imgsrc = imgsrc;
 }
-
-function formRead(obj){
-    let slider = ((obj.parentNode.parentNode).previousElementSibling).querySelector("#pagesRead")
-    
-    let pages = ((slider.parentNode).previousElementSibling).querySelector("#pages");
-    console.log(pages);
-    if(obj.checked){
-        slider.value = pages.value;
-    }
-}
 function addBook(){
     let duplicate = false;
     let t = document.getElementById("title").value;
@@ -26,28 +26,51 @@ function addBook(){
     let p = document.getElementById("pages").value;
     let pr = document.getElementById("pagesRead").value;
     let r = document.getElementById("read").checked;
-    let id = uniqueID;
-    for(book of bookCollection){
-        if(book["title"] == t){
-            duplicate = true;
-        }
-    }
-    if(!duplicate && (t && a && p && pr)){
-        bookCollection.push(new Book(t,a,p,pr,r,id,""));
-        showBooks(t,a,p,pr,r,uniqueID);
+
+
+
+    if(JSON.parse(localStorage.getItem("books") == null)){
+        localStorage.setItem("ids","0");
+        let book = [new Book(t,a,p,pr,r,0,"")]
+        localStorage.setItem("books",JSON.stringify(book))
         document.getElementById("exit").click() 
         document.getElementById("addBookForm").reset();
-        uniqueID++;
-       
+        showBooks(t,a,p,pr,r,0,"");        
     }
     else{
-        console.log("Error");
+        booksList = JSON.parse(localStorage.getItem("books"));
+        for(book of booksList){
+            if(book["title"] == t){
+                duplicate = true;
+            }
+        }
+        if(!duplicate && (t && a && p && pr)){
+            ids = localStorage.getItem("ids");
+            uid = parseInt(ids) + 1; 
+            newBook = new Book(t,a,p,pr,r,uid,"");
+            booksList.push(newBook);
+            localStorage.setItem("books",JSON.stringify(booksList))
+            localStorage.setItem("ids",uid.toString());
+            document.getElementById("exit").click() 
+            document.getElementById("addBookForm").reset();
+            showBooks(t,a,p,pr,r,uid,"");
+        }
+        else{
+            alert("Dupicate entry!")
+        }
     }
-    console.log(bookCollection)
 }
 
-function showBooks(title,author,pages,pagesRead,read,uid,img){
 
+function formRead(obj){
+    let slider = ((obj.parentNode.parentNode).previousElementSibling).querySelector("#pagesRead")
+    
+    let pages = ((slider.parentNode).previousElementSibling).querySelector("#pages");
+    if(obj.checked){
+        slider.value = pages.value;
+    }
+}
+function showBooks(title,author,pages,pagesRead,read,uid,img){
     let cardItem = document.createElement("div");
     cardItem.setAttribute("class","cardItem");
 
@@ -159,7 +182,7 @@ function showBooks(title,author,pages,pagesRead,read,uid,img){
     edits.append(pages_read_text,main_toggle);
 
 
-    if(img != undefined){
+    if(img){
         photo.appendChild(cover);
     }
     else{
@@ -196,38 +219,6 @@ function showBooks(title,author,pages,pagesRead,read,uid,img){
     setTimeout(function (){updateProgressBar(calc_progress,uid)},400);
 
 }
-
-function uploadPhoto(obj){
-    let parentToAdd = obj.parentNode;
-    let card = (parentToAdd.parentNode.parentNode).getAttribute("data-item");
-    let bookObj;
-    for(book of bookCollection){
-        if(book["uid"] == card){
-            bookObj = book;
-        }
-    }
-    var preview = document.createElement("img");
-    
-    var file    = document.querySelector('input[type=file]').files[0];
-    var reader  = new FileReader();
-  
-    reader.onloadend = function () {
-        preview.src = reader.result;
-        bookObj.imgsrc = preview.src
-      
-    }
-  
-    if (file) {
-      reader.readAsDataURL(file);
-      
-    } else {
-      preview.src = "";
-    }
-
-    parentToAdd.appendChild(preview)
-    parentToAdd.removeChild(parentToAdd.childNodes[0])
-}
-
 function updateProgressBar(value,id){
    
     let cardItem = document.querySelector(`[data-item="${id}"]`);
@@ -253,7 +244,6 @@ function updateProgressBar(value,id){
             amt.innerHTML = `${current}%`
         }
         else if(current>value){
-            console.log("Do this");
             current--;
             amt.innerHTML = `${current}%`
         }
@@ -293,9 +283,15 @@ function makeEditable(currentNode){
 function removeBook(currentNode){
     let cardItem = currentNode.parentNode.parentNode;
     let uid = cardItem.getAttribute("data-item");
-    for(book of bookCollection){
-        if(book["uid"] == uid){
-            bookCollection.pop(book);
+
+
+    if(uid != 9000){
+        let bookList = JSON.parse(localStorage.getItem("books"));
+        for(book of bookList){
+            if(book["uid"] == uid){
+                bookList.pop(book);
+                localStorage.setItem("books",JSON.stringify(bookList))
+            }
         }
     }
     while (cardItem.firstChild) {
@@ -306,7 +302,7 @@ function removeBook(currentNode){
 }
 
 function updatePagesRead(obj){
-    let total,current;
+    let bookObj;
     let cardItem = obj.parentNode.parentNode.parentNode.parentNode;
     let cardId = cardItem.getAttribute("data-item");
     let read = cardItem.querySelector(".finish");
@@ -314,22 +310,21 @@ function updatePagesRead(obj){
     obj.setAttribute("contenteditable","false");
     
     let newPagesRead = obj.textContent;
-
-    let bookObj;
-    for(book of bookCollection){
+    let bookList = JSON.parse(localStorage.getItem("books"));
+   
+    for(book of bookList){
         if(book["uid"] == cardId){
-            current = book.progress;
-            total = book.pages;
             bookObj = book;
         }
     }
-    if(parseInt(newPagesRead) > parseInt(total)){
+    if(parseInt(newPagesRead) > parseInt(bookObj.pages)){
         alert("Read pages must be less than total.")
-        obj.textContent = current;
+        obj.textContent = bookObj.progress;
     }
     else{
-        let newProgress = Math.floor((newPagesRead/total) * 100);
+        let newProgress = Math.floor((newPagesRead/bookObj.pages) * 100);
         bookObj.progress = newPagesRead;
+       
         updateProgressBar(newProgress,cardId)
 
         if(newProgress < 100){
@@ -340,13 +335,21 @@ function updatePagesRead(obj){
             bookObj.read = true;
             read.checked = true;
         }
+
+        for(book of bookList){
+            if(book["uid"] == bookObj["uid"]){
+                book.progress = bookObj.progress;
+                book.read = bookObj.read;
+            }
+        }
+        localStorage.setItem("books",JSON.stringify(bookList))
         
     }
     
 
 }
 function updateTotalPages(obj){
-    let progress;
+    let bookObj;
     let cardItem = obj.parentNode.parentNode.parentNode.parentNode;
     let cardId = cardItem.getAttribute("data-item");
     let read = cardItem.querySelector(".finish");
@@ -354,21 +357,19 @@ function updateTotalPages(obj){
     obj.setAttribute("contenteditable","false");
     
     let newTotal = obj.textContent;
-    let bookObj;
-    for(book of bookCollection){
+    let bookList = JSON.parse(localStorage.getItem("books"));
+
+    for(book of bookList){
         if(book["uid"] == cardId){
-            current = book.pages;
-            progress = book.progress;
             bookObj = book;
         }
     }
-    if(parseInt(newTotal) < parseInt(progress)){
+    if(parseInt(newTotal) < parseInt(bookObj.progress)){
         alert("Total pages cannot be less than progress.")
-    
-        obj.textContent = current;
+        obj.textContent = book.pages;
     }
     else{
-        let newProgress = Math.floor((progress/newTotal) * 100);
+        let newProgress = Math.floor((bookObj.progress/newTotal) * 100);
         updateProgressBar(newProgress,cardId);
         bookObj.pages = newTotal;
         if(newProgress < 100){
@@ -380,17 +381,26 @@ function updateTotalPages(obj){
             read.checked = true;
         }
        
+        for(book of bookList){
+            if(book["uid"] == bookObj["uid"]){
+                book.pages = bookObj.pages;
+                book.read = bookObj.read;
+            }
+        }
+        localStorage.setItem("books",JSON.stringify(bookList))
     }
     
 }
 
 function markAsRead(obj){
+    let bookObj;
     let cardItem = obj.parentNode.parentNode.parentNode.parentNode.parentNode;
-    
     let read = obj.checked;
     let uid = cardItem.getAttribute("data-item");
-    let bookObj;
-    for(book of bookCollection){
+
+    let bookList = JSON.parse(localStorage.getItem("books"));
+
+    for(book of bookList){
         if(book["uid"] == uid){
             bookObj = book;
         }
@@ -399,7 +409,16 @@ function markAsRead(obj){
         bookObj.read = true;
         bookObj.progress = book.pages;
         cardItem.querySelector(".readPages").textContent = `${bookObj.pages}`;
+        for(book of bookList){
+            if(book["uid"] == bookObj["uid"]){
+                book.read = bookObj.read;
+                book.progress = bookObj.progress;
+            }
+        }
+        localStorage.setItem("books",JSON.stringify(bookList));
         updateProgressBar(100,uid)
+        
+
     }
     else{
         cardItem.querySelector(".readPages").textContent = `${bookObj.progress}`;
@@ -410,4 +429,42 @@ function markAsRead(obj){
 
 
    
+}
+function uploadPhoto(obj){
+    let parentToAdd = obj.parentNode;
+    let uid = (parentToAdd.parentNode.parentNode).getAttribute("data-item");
+    let bookObj;
+
+    let bookList = JSON.parse(localStorage.getItem("books"));
+
+    for(book of bookList){
+        if(book["uid"] == uid){
+            bookObj = book;
+        }
+    }
+    var preview = document.createElement("img");
+    
+    var file    = document.querySelector('input[type=file]').files[0];
+    var reader  = new FileReader();
+  
+    reader.onloadend = function () {
+        preview.src = reader.result;
+        bookObj.imgsrc = preview.src
+        for(book of bookList){
+            if(book["uid"] == bookObj.uid){
+                book.imgsrc = bookObj.imgsrc;
+            }
+        }
+        localStorage.setItem("books",JSON.stringify(bookList))
+    }
+  
+    if (file) {
+      reader.readAsDataURL(file);
+      
+    } else {
+      preview.src = "";
+    }
+
+    parentToAdd.appendChild(preview)
+    parentToAdd.removeChild(parentToAdd.childNodes[0])
 }
