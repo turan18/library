@@ -2,22 +2,26 @@ window.onload = function(){
     if(JSON.parse(localStorage.getItem("books")) != null){
         let bookList = JSON.parse(localStorage.getItem("books"));
         
-        bookList.forEach((book) => {
-            showBooks(book.title,book.author,book.pages,book.progress,book.read,book.uid,book.imgsrc);
+        bookList.forEach((book,i) => {
+            setTimeout(function(){
+                showBooks(book.title,book.author,book.pages,book.progress,book.read,book.uid,book.imgsrc)
+            },i * 5000);
         });
     }
 }
 
 
 
-function Book(title,author,pages,progress,read,uid,imgsrc){
-    this.title = title;
-    this.author = author;
-    this.pages = pages;
-    this.progress = progress;
-    this.read = read;
-    this.uid = uid;
-    this.imgsrc = imgsrc;
+class Book {
+    constructor(title, author, pages, progress, read, uid, imgsrc) {
+        this.title = title;
+        this.author = author;
+        this.pages = pages;
+        this.progress = progress;
+        this.read = read;
+        this.uid = uid;
+        this.imgsrc = imgsrc;
+    }
 }
 function addBook(){
     let duplicate = false;
@@ -283,16 +287,17 @@ function makeEditable(currentNode){
 function removeBook(currentNode){
     let cardItem = currentNode.parentNode.parentNode;
     let uid = cardItem.getAttribute("data-item");
+    console.log(cardItem);
 
 
     if(uid != 9000){
         let bookList = JSON.parse(localStorage.getItem("books"));
-        for(book of bookList){
-            if(book["uid"] == uid){
-                bookList.pop(book);
-                localStorage.setItem("books",JSON.stringify(bookList))
+        for (var i = bookList.length - 1; i >= 0; --i) {
+            if (bookList[i].uid == uid) {
+                bookList.splice(i,1);
             }
         }
+        localStorage.setItem("books",JSON.stringify(bookList))
     }
     while (cardItem.firstChild) {
         cardItem.removeChild(cardItem.firstChild);
